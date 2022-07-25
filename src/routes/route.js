@@ -6,8 +6,7 @@ const mw = require("../middlewares/auth")
 router.post("/register", userController.register)
 router.post("/login", userController.loginUser)
 router.get("/user/:userId/profile",mw.authentication, userController.getUser)
-
-//router.put("/user/:userId/profile", userController.updateUser)
+router.put("/user/:userId/profile",mw.authentication, userController.updateUser)
 
 
 router.all("/*", function(req, res) {

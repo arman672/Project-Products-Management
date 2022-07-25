@@ -102,7 +102,9 @@ const updateUser = async function (req, res) {
 
         let user = await userModel.findById(userId)
         if (!user) return res.status(404).send({ status: false, message: "User not found" })
-        //if(req.token.userId != userId)  return res.status(403).send({status : false, message : "Not Authorised"})
+
+        if(req.token.userId != userId)  return res.status(403).send({status : false, message : "Not Authorised"})
+        
         if (!isValidbody(data)) return res.status(400).send({ status: false, message: "Please provide data to update" })
 
         let { fname, lname, email, phone, password, address } = data
