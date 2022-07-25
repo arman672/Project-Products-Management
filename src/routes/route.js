@@ -1,19 +1,8 @@
-const express=require("express")
-const router=express.Router()
-const userController=require("../controllers/userController")
+const express = require("express")
+const router = express.Router()
+const userController = require("../controllers/userController")
 
+router.post("/register", userController.register)
+//router.put("/user/:userId/profile", userController.updateUser)
 
-
-
-
-router.post("/register",userController.register)
-
-
-
-
-module.exports=router
-
-
-
-
-
+module.exports = router
