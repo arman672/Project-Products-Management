@@ -50,6 +50,16 @@ const register = async function (req, res) {
                 return res.status(400).send({data:false,msg:"invalid emailId"})
 
              }
+             let emailCheck=await userModel.findOne({email:email})
+             if(emailCheck){
+                return res.status(400).send({status:false,msg:"email is already exist"})
+             }
+
+             if(!isValidPassword(password)){
+                return res.status(400).send({status:false,msg:"enter the valid password"})
+             }
+             
+
              
              
 
