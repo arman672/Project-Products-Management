@@ -5,8 +5,6 @@ const mongoose = require("mongoose")
 const bcrypt=require("bcrypt")
   
 
-
-
 const register = async function (req, res) {
     try {
         let data = req.body
@@ -15,10 +13,7 @@ const register = async function (req, res) {
 
 
         if (!(files && files.length)) {
-
             return res.status(400).send({ status: false, message: " Please Provide The Profile Image" });
-
-
         }
 
         const uploadedProfileImage = await uploadFile(files[0])
@@ -32,18 +27,16 @@ const register = async function (req, res) {
         return res.status(500).send({ status: false, message: err.message })
 
     }
+    //password = await bcrypt.hash(password, 10)
+}
 
+//===========================================================get user
+const userLogin = async function(req,res){
+    try {
+       const {email, password} = req.body
 
-    //password = await bcrypt.hash(password, 10);
-
-
-
-
-
-
-
-
-
-
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
 }
 module.exports = { register }
