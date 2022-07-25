@@ -2,10 +2,7 @@ const userModel = require("../models/userModel")
 const { uploadFile } = require("../utils/aws")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
-//const bcrypt = require("bcrypt")
 const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex } = require("../validator/validator")
-
-const validator = require("../validator/validator")
 
 
 const register = async function (req, res) {
@@ -190,5 +187,4 @@ const getUser = async function (req, res) {
     }
 }
 
-module.exports = { register, loginUser, getUser }
-module.exports = { register, updateUser }
+module.exports = { register, loginUser, getUser ,updateUser }
