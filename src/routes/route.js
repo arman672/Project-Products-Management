@@ -7,6 +7,8 @@ router.post("/register", userController.register)
 router.post("/login", userController.loginUser)
 router.get("/user/:userId/profile",mw.authentication, userController.getUser)
 
+//router.put("/user/:userId/profile", userController.updateUser)
+
 
 router.all("/*", function(req, res) {
     res.status(404).send({ msg: "No such Api found" })
