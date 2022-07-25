@@ -1,11 +1,66 @@
 const userModel = require("../models/userModel")
 const { uploadFile } = require("../utils/aws")
 const bcrypt = require("bcrypt")
+const { isValid, isValidbody, nameRegex,emailRegex } = require("../validator/validator")
+
 
 const register = async function (req, res) {
     try {
         let data = req.body
+        if (!isValidbody(data)) {
+            return res.status(400).send({ status: false, msg: "plz enter some keys and values in the data" })
+        }
         let { fname, lname, email, phone, password, address } = data
+
+
+
+//****************************************************NAME VALIDATION*******************************************************************************/
+
+
+
+        if (!isValid(fname)) {
+            res.status(400).send({ status: false, msg: "plz enter your firstName" })
+
+        }
+        if (!nameRegex.test(fname)) {
+            return res.status(400)
+                .send({ status: false, msg: "plz enter the valid name: plz do not use number in naming credential,only alphabets is required in naming credential" })
+        }
+
+        if (!isValid(lname)) {
+            res.status(400).send({ status: "false", msg: "plz enter your lastName" })
+
+        }
+        if (!nameRegex.test(lname)) {
+            return res.status(400)
+                .send({ status: false, msg: "plz enter the valid name: plz do not use number in naming credential,only alphabets is required in naming credential" })
+        }
+
+
+//******************************************************EMAIL VALIDATION************************************************************ */        
+
+        
+
+             if(!isValid(email)){
+                return res.status(400).send({data:false,msg:"plz enter your emaidId"})
+             }
+             if(!emailRegex.test(email)){
+                return res.status(400).send({data:false,msg:"invalid emailId"})
+
+             }
+             
+             
+
+
+
+
+
+
+
+
+
+
+//********************************************************************************************************************************** */
         let files = req.files
 
         if (!(files && files.length)) {
@@ -27,12 +82,5 @@ const register = async function (req, res) {
     }
 }
 
-const updateUser = function (req, res) {
-    try {
-
-    } catch (error) {
-        return res.status(500).send({ status: false, message: err.message })
-    }
-}
 
 module.exports = { register }
