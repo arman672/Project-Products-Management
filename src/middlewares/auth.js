@@ -17,7 +17,7 @@ exports.authentication = async function (req, res, next) {
                 //set the token
                 req.token = decodedToken;
                 //next middleweare
-                console.log(decodedToken)
+                //console.log(decodedToken)
                 next();
             })
 

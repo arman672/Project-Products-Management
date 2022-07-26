@@ -151,11 +151,18 @@ const loginUser = async function (req, res) {
         let data = req.body
         let { email, password } = data
 
+        if (!isValidbody(data)) return res.status(400).send({ status: false, message: "email and password cannot be empty" })
+        if (!isValid(email)) return res.status(400).send({ status: false, message: "email should be in string format and it cannot be empty"})
+        if (!email.match(emailRegex)) return res.status(400).send({ status: false, message: "email is in incorrect format" })
+
+        if (!isValid(password)) return res.status(400).send({ status: false, message: "password should be in string format and it cannot be empty" })
+        //if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "password should be 8-15 characters in length." })
+
         const foundUser = await userModel.findOne({ email: email })
         if (!foundUser) return res.status(401).send({ status: false, message: "invalid credentials" })
 
-        const isValid = await bcrypt.compare(password, foundUser.password)
-        if (!foundUser || !isValid) return res.status(401).send({ status: false, message: "invalid credentials" })
+        const cmprPassword = await bcrypt.compare(password, foundUser.password)
+        if (!foundUser || !cmprPassword) return res.status(401).send({ status: false, message: "invalid credentials" })
 
         const token = await jwt.sign({ userId: foundUser._id }, "groot", { expiresIn: "1d" })
         //res.setHeader({"Authorization": "Bearer "+token});  //setting token in header
@@ -179,9 +186,9 @@ const updateUser = async function (req, res) {
         let user = await userModel.findById(userId)
         if (!user) return res.status(404).send({ status: false, message: "User not found" })
 
-        if (req.token.userId != userId) return res.status(403).send({ status: false, message: "Not Authorised" })
-
-        if (!isValidbody(data)) return res.status(400).send({ status: false, message: "Please provide data to update" })
+        if(req.token.userId != userId)  return res.status(403).send({status : false, message : "Not Authorised"})
+        
+        if (!isValidbody(data) && req.files.length == 0) return res.status(400).send({ status: false, message: "Please provide data to update" })
 
         let { fname, lname, email, phone, password, address } = data
         if (fname) {
@@ -243,6 +250,12 @@ const updateUser = async function (req, res) {
             delete data.address
         }
 
+        let image = req.files[0]
+        if(image) {
+            let url = await uploadFile(image)
+            data.profileImage = url
+        }
+
         let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { ...data, ...query }, { new: true })
         return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser })
     } catch (err) {
@@ -252,10 +265,10 @@ const updateUser = async function (req, res) {
 
 const getUser = async function (req, res) {
     try {
-        let id = req.params.userId
+        let id = req.params.userId   
         if (!id) return res.status(400).send({ status: false, message: "id must be present in params" })
+        if (!id.match(objectid)) return res.status(400).send({ status: false, message: "invalid userId" })
 
-        //id validation 
         const foundUser = await userModel.findOne({ _id: id })
         if (!foundUser) return res.status(404).send({ status: false, message: "user not found" })
 
