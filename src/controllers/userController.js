@@ -105,7 +105,7 @@ const updateUser = async function (req, res) {
 
         if(req.token.userId != userId)  return res.status(403).send({status : false, message : "Not Authorised"})
         
-        if (!isValidbody(data)) return res.status(400).send({ status: false, message: "Please provide data to update" })
+        if (!isValidbody(data) && req.files.length == 0) return res.status(400).send({ status: false, message: "Please provide data to update" })
 
         let { fname, lname, email, phone, password, address } = data
         if (fname) {
@@ -165,6 +165,12 @@ const updateUser = async function (req, res) {
                 }
             }
             delete data.address
+        }
+
+        let image = req.files[0]
+        if(image) {
+            let url = await uploadFile(image)
+            data.profileImage = url
         }
 
         let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { ...data, ...query }, { new: true })
