@@ -23,5 +23,21 @@ const createProduct = async function (req, res) {
     }
 }
 
-module.exports = { createProduct }
+const getProductById = async function(req, res) {
+    try {
+        let productId = req.params.productId
+        if(!productId)  return res.status(400).send({ status: false, msg: "ProductId is required" })
+        if (!isValid(productId)) return res.status(400).send({ status: false, message: "Incorrect productId" })
+        if (!productId.match(objectid)) return res.status(400).send({ status: false, message: "Incorrect productId" })
+
+        let product = await productModel.findById(productId)
+        if(!product || product.isDeleted == true)    return res.status(404).send({ status: false, msg: "Product not found" })
+
+        return res.status(200).send({ status: true, data: product })
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+module.exports = { createProduct, getProductById }
 
