@@ -2,7 +2,8 @@ const userModel = require("../models/userModel")
 const { uploadFile } = require("../utils/aws")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
-const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex } = require("../validator/validator")
+const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex} = require("../validator/validator");
+const { RolesAnywhere } = require("aws-sdk");
 
 
 const register = async function (req, res) {
@@ -76,7 +77,7 @@ const loginUser = async function (req, res) {
         let { email, password } = data
 
         if (!isValidbody(data)) return res.status(400).send({ status: false, message: "email and password cannot be empty" })
-        if (!isValid(email)) return res.status(400).send({ status: false, message: "email should be in string format and it cannot be empty"})
+        if (!isValid(email)) return res.status(400).send({ status: false, message: "email should be in string format and it cannot be empty" })
         if (!email.match(emailRegex)) return res.status(400).send({ status: false, message: "email is in incorrect format" })
 
         if (!isValid(password)) return res.status(400).send({ status: false, message: "password should be in string format and it cannot be empty" })
@@ -110,8 +111,8 @@ const updateUser = async function (req, res) {
         let user = await userModel.findById(userId)
         if (!user) return res.status(404).send({ status: false, message: "User not found" })
 
-        if(req.token.userId != userId)  return res.status(403).send({status : false, message : "Not Authorised"})
-        
+        if (req.token.userId != userId) return res.status(403).send({ status: false, message: "Not Authorised" })
+
         if (!isValidbody(data) && req.files.length == 0) return res.status(400).send({ status: false, message: "Please provide data to update" })
 
         let { fname, lname, email, phone, password, address } = data
@@ -174,10 +175,12 @@ const updateUser = async function (req, res) {
             delete data.address
         }
 
-        let image = req.files[0]
-        if(image) {
-            let url = await uploadFile(image)
-            data.profileImage = url
+        if (req.files) {
+            let image = req.files[0]
+            if (image) {
+                let url = await uploadFile(image)
+                data.profileImage = url
+            }
         }
 
         let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { ...data, ...query }, { new: true })
@@ -189,8 +192,7 @@ const updateUser = async function (req, res) {
 
 const getUser = async function (req, res) {
     try {
-        let id = req.params.userId   
-        if (!id) return res.status(400).send({ status: false, message: "id must be present in params" })
+        let id = req.params.userId
         if (!id.match(objectid)) return res.status(400).send({ status: false, message: "invalid userId" })
 
         const foundUser = await userModel.findOne({ _id: id })
@@ -202,4 +204,4 @@ const getUser = async function (req, res) {
     }
 }
 
-module.exports = { register, loginUser, getUser ,updateUser }
+module.exports = { register, loginUser, getUser, updateUser }
