@@ -3,7 +3,8 @@ const userModel = require("../models/userModel")
 const { uploadFile } = require("../utils/aws")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
-const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex } = require("../validator/validator")
+const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex} = require("../validator/validator");
+const { RolesAnywhere } = require("aws-sdk");
 
 
 
@@ -152,7 +153,7 @@ const loginUser = async function (req, res) {
         let { email, password } = data
 
         if (!isValidbody(data)) return res.status(400).send({ status: false, message: "email and password cannot be empty" })
-        if (!isValid(email)) return res.status(400).send({ status: false, message: "email should be in string format and it cannot be empty"})
+        if (!isValid(email)) return res.status(400).send({ status: false, message: "email should be in string format and it cannot be empty" })
         if (!email.match(emailRegex)) return res.status(400).send({ status: false, message: "email is in incorrect format" })
 
         if (!isValid(password)) return res.status(400).send({ status: false, message: "password should be in string format and it cannot be empty" })
@@ -268,8 +269,7 @@ const updateUser = async function (req, res) {
 
 const getUser = async function (req, res) {
     try {
-        let id = req.params.userId   
-        if (!id) return res.status(400).send({ status: false, message: "id must be present in params" })
+        let id = req.params.userId
         if (!id.match(objectid)) return res.status(400).send({ status: false, message: "invalid userId" })
 
         const foundUser = await userModel.findOne({ _id: id })
