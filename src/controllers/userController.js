@@ -135,6 +135,7 @@ const register = async function (req, res) {
             data.password = password
             data.profileImage = uploadedProfileImage
             data.address = address
+            
 
 
             let createdUser = await userModel.create(data)
@@ -168,6 +169,23 @@ const loginUser = async function (req, res) {
         //res.setHeader({"Authorization": "Bearer "+token});  //setting token in header
 
         return res.status(200).send({ status: true, message: "User login successfull", data: { userId: foundUser._id, token: token } })
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+
+
+const getUser = async function (req, res) {
+    try {
+        let id = req.params.userId   
+        if (!id) return res.status(400).send({ status: false, message: "id must be present in params" })
+        if (!id.match(objectid)) return res.status(400).send({ status: false, message: "invalid userId" })
+
+        const foundUser = await userModel.findOne({ _id: id })
+        if (!foundUser) return res.status(404).send({ status: false, message: "user not found" })
+
+        return res.status(200).send({ status: true, message: "User details", data: foundUser })
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -263,19 +281,5 @@ const updateUser = async function (req, res) {
     }
 }
 
-const getUser = async function (req, res) {
-    try {
-        let id = req.params.userId   
-        if (!id) return res.status(400).send({ status: false, message: "id must be present in params" })
-        if (!id.match(objectid)) return res.status(400).send({ status: false, message: "invalid userId" })
-
-        const foundUser = await userModel.findOne({ _id: id })
-        if (!foundUser) return res.status(404).send({ status: false, message: "user not found" })
-
-        return res.status(200).send({ status: true, message: "User details", data: foundUser })
-    } catch (err) {
-        return res.status(500).send({ status: false, message: err.message })
-    }
-}
 
 module.exports = { register, loginUser, getUser, updateUser }
