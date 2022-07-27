@@ -4,11 +4,15 @@ const userController = require("../controllers/userController")
 const productController = require("../controllers/productController")
 const mw = require("../middlewares/auth")
 
+//============================User Apis=============================================
 router.post("/register", userController.register)
 router.post("/login", userController.loginUser)
 router.get("/user/:userId/profile",mw.authentication, userController.getUser)
 router.put("/user/:userId/profile",mw.authentication, userController.updateUser)
+
+//=============================Product APIs==========================================
 router.post("/products", productController.createProduct)
+router.get("/products/:productId", productController.getProductById)
 
 
 router.all("/*", function(req, res) {

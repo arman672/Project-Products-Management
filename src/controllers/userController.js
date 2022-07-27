@@ -206,7 +206,7 @@ const updateUser = async function (req, res) {
 
         if(req.token.userId != userId)  return res.status(403).send({status : false, message : "Not Authorised"})
         
-        if (!isValidbody(data) && req.files.length == 0) return res.status(400).send({ status: false, message: "Please provide data to update" })
+        if (!isValidbody(data) && !req.files) return res.status(400).send({ status: false, message: "Please provide data to update" })
 
         let { fname, lname, email, phone, password, address } = data
         if (fname) {
@@ -236,6 +236,7 @@ const updateUser = async function (req, res) {
         }
         let query = {}
         if (address) {
+            address = JSON.parse(address)
             if (typeof address != "object") return res.status(400).send({ status: false, message: "address is in incorrect format" })
             if (address.shipping) {
                 if (address.shipping.street) {
@@ -268,10 +269,12 @@ const updateUser = async function (req, res) {
             delete data.address
         }
 
-        let image = req.files[0]
-        if(image) {
-            let url = await uploadFile(image)
-            data.profileImage = url
+        if(req.files) {
+            let image = req.files[0]
+            if(image) {
+                let url = await uploadFile(image)
+                data.profileImage = url
+            }
         }
 
         let updatedUser = await userModel.findOneAndUpdate({ _id: userId }, { ...data, ...query }, { new: true })
