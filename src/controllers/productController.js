@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex, alphaNumSpaceReg, priceReg, } = require("../validator/validator");
 const { set } = require("mongoose");
 const { json } = require("express");
+const { find } = require("../models/userModel");
 
 //==============================================create api=============================================
 const createProduct = async function (req, res) {
@@ -46,7 +47,7 @@ const createProduct = async function (req, res) {
         //currency format validation
         if (currencyFormat && currencyFormat.trim().length !== 0) {
             if (currencyFormat !== "₹") return res.status(400).send({ status: false, message: "only indian currencyFormat is allowed and the type should be string" })
-        } else return res.status(400).send({ status: false, message: "currencyId cannot be empty" })
+        } else return res.status(400).send({ status: false, message: "currencyFormat cannot be empty" })
 
         //isFreeShipping validation
         if (isFreeShipping) {
@@ -63,7 +64,7 @@ const createProduct = async function (req, res) {
                 let url = await uploadFile(image)
                 data.productImage = url
             } else return res.status(400).send({ status: false, message: "must include product image file" })
-        }
+        }else return res.status(400).send({ status: false, message: "must include product image file" })
 
         //style validation
         if (style) {
@@ -80,11 +81,7 @@ const createProduct = async function (req, res) {
 
         //availableSizes validation
         if (availableSizes) {
-            try {
-                availableSizes = JSON.parse(availableSizes)//parsing to array
-            } catch {
-                availableSizes = [availableSizes]
-            }
+            availableSizes = availableSizes.split(",").map(ele => ele.trim())
             if (Array.isArray(availableSizes)) {
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set(availableSizes)]
@@ -106,6 +103,69 @@ const createProduct = async function (req, res) {
         const createdProduct = await productModel.create(data)
 
         return res.status(201).send({ status: true, data: createdProduct })
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+const getProductByQuery = async function(req, res) {
+    try {
+        let query = req.query;  
+
+        let {size, name, priceGreaterThan ,priceLessThan} = query
+
+        let filter = {
+            isDeleted: false
+        }
+
+        if(size){
+            size = size.split(",").map(ele => ele.trim())
+            if (Array.isArray(size)) {               
+                let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+                let uniqueSizes = [...new Set(size)]
+                for (let ele of uniqueSizes) {
+                    if (enumArr.indexOf(ele) == -1) {
+                        return res.status(400).send({ status: false, message: `'${ele}' is not a valid size, only these sizes are available [S, XS, M, X, L, XXL, XL]` })
+                    }
+                }
+                filter["availableSizes"] = { $in: uniqueSizes };
+            }else return res.status(400).send({ status: false, message: "size should be of type Array" })          
+        }
+
+        //to do substring name
+        if(name){
+            if (!isValid(name)) return res.status(400).send({ status: false, message: "name is in incorrect format" })
+            filter["title"] = {"$regex": name};
+        }
+
+        if(priceGreaterThan){
+            if (!priceGreaterThan.toString().match(priceReg)) return res.status(400).send({ status: false, message: "price should be in valid number/decimal format" })
+            filter["price"] = { $gte: priceGreaterThan }
+        }
+
+        if(priceLessThan){
+            if (!priceLessThan.toString().match(priceReg)) return res.status(400).send({ status: false, message: "price should be in valid number/decimal format" })
+            filter["price"] = { $lte: priceLessThan }
+        }
+ 
+        if(priceGreaterThan && priceLessThan){
+            if (!priceLessThan.toString().match(priceReg)) return res.status(400).send({ status: false, message: "price should be in valid number/decimal format" })
+            if (!priceGreaterThan.toString().match(priceReg)) return res.status(400).send({ status: false, message: "price should be in valid number/decimal format" })
+            filter["price"] = {$gte: priceGreaterThan, $lte: priceLessThan}
+        }
+
+        const foundProducts = await productModel.find(filter).select({_id:0,__v:0 })
+
+        // console.log(foundProducts)
+        foundProducts.sort((a,b) => {
+            return a.price - b.price
+        })
+        
+        if(foundProducts.length == 0) return res.status(404).send({ status: true, message: "no product found for the given query"})
+
+  
+        return res.status(200).send({status  : true, data : foundProducts})
+
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -200,11 +260,7 @@ const updateProduct = async function(req, res) {
 
         //availableSizes validation
         if (availableSizes) {
-            try {
-                availableSizes = JSON.parse(availableSizes)//parsing to array
-            } catch {
-                availableSizes = [availableSizes]
-            }
+            availableSizes = availableSizes.split(",").map(ele => ele.trim())
             if (Array.isArray(availableSizes)) {
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set([...availableSizes, ...product.availableSizes])]
@@ -233,5 +289,5 @@ const updateProduct = async function(req, res) {
 }
 
 
-module.exports = { createProduct, getProductById, updateProduct }
+module.exports = { createProduct, getProductById, updateProduct, getProductByQuery }
 
