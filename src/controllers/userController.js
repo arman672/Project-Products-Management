@@ -3,7 +3,8 @@ const userModel = require("../models/userModel")
 const { uploadFile } = require("../utils/aws")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
-const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex } = require("../validator/validator")
+const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex} = require("../validator/validator");
+const { RolesAnywhere } = require("aws-sdk");
 
 
 
@@ -92,7 +93,7 @@ const register = async function (req, res) {
 
 
 
-   //***********shipping**************** */        
+ //**SHIPPING**    
    
    
 
@@ -114,9 +115,7 @@ const register = async function (req, res) {
             } else return res.status(400).send({ status: false, msg: "address.shipping is required" })
 
 
-//*******************billing************ */
-
-
+//**BILLING*
 
             if (address.billing) {
                 if (address.billing.street) {
@@ -136,11 +135,10 @@ const register = async function (req, res) {
 
             } else return res.status(400).send({ status: false, msg: "address.billing is required" })
 
+        } else return res.status(400).send({ status: false, msg: "address is " })
 
-            //********************************************************************************************************************************** */
 
-
-            
+            //***********************************************************AWS*********************************************************************** */
             let files = req.files
 
             if (!(files && files.length)) {
@@ -148,7 +146,7 @@ const register = async function (req, res) {
             }
 
             const uploadedProfileImage = await uploadFile(files[0])
-            password = await bcrypt.hash(password, 10);
+            password = await bcrypt.hash(password, 10)
             data.password = password
             data.profileImage = uploadedProfileImage
             data.address = address
@@ -158,7 +156,7 @@ const register = async function (req, res) {
             let createdUser = await userModel.create(data)
 
             return res.status(201).send({ status: true, message: "User created successsfully", data: createdUser })
-        }
+        
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -172,6 +170,9 @@ const loginUser = async function (req, res) {
         if (!isValidbody(data)) return res.status(400).send({ status: false, message: "email and password cannot be empty" })
         if (!isValid(email)) return res.status(400).send({ status: false, message: "email should be in string format and it cannot be empty" })
         if (!email.match(emailRegex)) return res.status(400).send({ status: false, message: "email is in incorrect format" })
+        
+
+        
 
         if (!isValid(password)) return res.status(400).send({ status: false, message: "password should be in string format and it cannot be empty" })
         //if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "password should be 8-15 characters in length." })
@@ -300,6 +301,7 @@ const updateUser = async function (req, res) {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
+
 
 
 module.exports = { register, loginUser, getUser, updateUser }

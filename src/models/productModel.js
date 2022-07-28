@@ -12,6 +12,7 @@ const productSchema = new mongoose.Schema({
     },
     price: {
         type: Number, 
+        //set: function (v) { return Math.round(v);},  
         required: true //valid number/decimal
     },
     currencyId: {
