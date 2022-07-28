@@ -13,7 +13,7 @@ router.put("/user/:userId/profile",mw.authentication, userController.updateUser)
 //=============================Product APIs==========================================
 router.post("/products", productController.createProduct)
 router.get("/products/:productId", productController.getProductById)
-
+router.get("/products", productController.getProductByQuery)
 
 router.all("/*", function(req, res) {
     res.status(404).send({ msg: "No such Api found" })
