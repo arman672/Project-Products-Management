@@ -81,14 +81,20 @@ const register = async function (req, res) {
 
 
         //*********************************************************ADDRESS VALIDATION***************************************************************** */
-        
-        
+
+
         address = JSON.parse(address)
-        
-        
-        
+
+
+
         if (address) {
             if (typeof address != "object") return res.status(400).send({ status: false, message: "address is in incorrect format" })
+
+
+
+   //***********shipping**************** */        
+   
+   
 
             if (address.shipping) {
                 if (address.shipping.street) {
@@ -99,11 +105,19 @@ const register = async function (req, res) {
                 if (address.shipping.city) {
                     if (!isValid(address.shipping.city)) return res.status(400).send({ status: false, message: "shipping city is in incorrect format" })
                 } else return res.status(400).send({ status: false, msg: "address.shipping.city is required" })
+
                 if (address.shipping.pincode) {
                     if (typeof address.shipping.pincode != "number") return res.status(400).send({ status: false, message: "shipping pincode is in incorrect format" })
+
                 } else return res.status(400).send({ status: false, msg: "address.shipping.pincode is required" })
 
             } else return res.status(400).send({ status: false, msg: "address.shipping is required" })
+
+
+//*******************billing************ */
+
+
+
             if (address.billing) {
                 if (address.billing.street) {
                     if (!isValid(address.billing.street)) return res.status(400).send({ status: false, message: "billing street is in incorrect format" })
@@ -124,6 +138,9 @@ const register = async function (req, res) {
 
 
             //********************************************************************************************************************************** */
+
+
+            
             let files = req.files
 
             if (!(files && files.length)) {
@@ -135,7 +152,7 @@ const register = async function (req, res) {
             data.password = password
             data.profileImage = uploadedProfileImage
             data.address = address
-            
+
 
 
             let createdUser = await userModel.create(data)
@@ -153,7 +170,7 @@ const loginUser = async function (req, res) {
         let { email, password } = data
 
         if (!isValidbody(data)) return res.status(400).send({ status: false, message: "email and password cannot be empty" })
-        if (!isValid(email)) return res.status(400).send({ status: false, message: "email should be in string format and it cannot be empty"})
+        if (!isValid(email)) return res.status(400).send({ status: false, message: "email should be in string format and it cannot be empty" })
         if (!email.match(emailRegex)) return res.status(400).send({ status: false, message: "email is in incorrect format" })
 
         if (!isValid(password)) return res.status(400).send({ status: false, message: "password should be in string format and it cannot be empty" })
@@ -178,7 +195,7 @@ const loginUser = async function (req, res) {
 
 const getUser = async function (req, res) {
     try {
-        let id = req.params.userId   
+        let id = req.params.userId
         if (!id) return res.status(400).send({ status: false, message: "id must be present in params" })
         if (!id.match(objectid)) return res.status(400).send({ status: false, message: "invalid userId" })
 
@@ -204,8 +221,8 @@ const updateUser = async function (req, res) {
         let user = await userModel.findById(userId)
         if (!user) return res.status(404).send({ status: false, message: "User not found" })
 
-        if(req.token.userId != userId)  return res.status(403).send({status : false, message : "Not Authorised"})
-        
+        if (req.token.userId != userId) return res.status(403).send({ status: false, message: "Not Authorised" })
+
         if (!isValidbody(data) && !req.files) return res.status(400).send({ status: false, message: "Please provide data to update" })
 
         let { fname, lname, email, phone, password, address } = data
@@ -269,9 +286,9 @@ const updateUser = async function (req, res) {
             delete data.address
         }
 
-        if(req.files) {
+        if (req.files) {
             let image = req.files[0]
-            if(image) {
+            if (image) {
                 let url = await uploadFile(image)
                 data.profileImage = url
             }
