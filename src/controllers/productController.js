@@ -81,11 +81,7 @@ const createProduct = async function (req, res) {
 
         //availableSizes validation
         if (availableSizes) {
-            try {
-                availableSizes = JSON.parse(availableSizes)//parsing to array
-            } catch {
-                availableSizes = [availableSizes]
-            }
+            availableSizes = availableSizes.split(",").map(ele => ele.trim())
             if (Array.isArray(availableSizes)) {
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set(availableSizes)]
@@ -123,7 +119,7 @@ const getProductByQuery = async function(req, res) {
         }
 
         if(size){
-            size = JSON.parse(size)
+            size = size.split(",").map(ele => ele.trim())
             if (Array.isArray(size)) {               
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set(size)]
@@ -139,7 +135,7 @@ const getProductByQuery = async function(req, res) {
         //to do substring name
         if(name){
             if (!isValid(name)) return res.status(400).send({ status: false, message: "name is in incorrect format" })
-            filter["title"] = name;
+            filter["title"] = {"$regex": name};
         }
 
         if(priceGreaterThan){
@@ -160,6 +156,7 @@ const getProductByQuery = async function(req, res) {
 
         const foundProducts = await productModel.find(filter).select({__v:0 })
 
+        // console.log(foundProducts)
         foundProducts.sort((a,b) => {
             return a.price - b.price
         })
@@ -167,7 +164,7 @@ const getProductByQuery = async function(req, res) {
         if(foundProducts.length == 0) return res.status(404).send({ status: true, message: "no product found for the given query"})
 
         return res.status(200).send({ status: "true", data: foundProducts})
-
+  
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -262,11 +259,7 @@ const updateProduct = async function(req, res) {
 
         //availableSizes validation
         if (availableSizes) {
-            try {
-                availableSizes = JSON.parse(availableSizes)//parsing to array
-            } catch {
-                availableSizes = [availableSizes]
-            }
+            availableSizes = availableSizes.split(",").map(ele => ele.trim())
             if (Array.isArray(availableSizes)) {
                 let enumArr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
                 let uniqueSizes = [...new Set([...availableSizes, ...product.availableSizes])]
