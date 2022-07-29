@@ -1,12 +1,7 @@
-const userModel = require("../models/userModel")
 const productModel = require("../models/productModel")
 const { uploadFile } = require("../utils/aws")
-const jwt = require("jsonwebtoken")
-const bcrypt = require("bcrypt");
-const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex, alphaNumSpaceReg, priceReg, } = require("../validator/validator");
-const { set } = require("mongoose");
-const { json } = require("express");
-const { find } = require("../models/userModel");
+const { isValid, isValidbody, nameRegex, objectid,priceReg } = require("../validator/validator");
+
 
 //==============================================create api=============================================
 const createProduct = async function (req, res) {

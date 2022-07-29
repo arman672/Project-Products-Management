@@ -1,13 +1,8 @@
 const userModel = require("../models/userModel")
-//const moongoose=require("mongoose")
 const { uploadFile } = require("../utils/aws")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
 const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex} = require("../validator/validator");
-const { RolesAnywhere } = require("aws-sdk");
-
-
-
 
 
 const register = async function (req, res) {
