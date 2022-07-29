@@ -122,12 +122,6 @@ const getProductByQuery = async function(req, res) {
             isDeleted: false
         }
 
-        if (Object.keys(query).length == 0) {  
-            const allProducts = await productModel.find({isDeleted: false }).select({_id:0,__v:0 })
-            if (allProducts.length == 0) return res.status(404).send({ status: false, message: "no products found"});
-            return res.status(200).send({ status: true, data: allProducts})
-        }
-
         if(size){
             size = JSON.parse(size)
             if (Array.isArray(size)) {               
@@ -164,14 +158,15 @@ const getProductByQuery = async function(req, res) {
             filter["price"] = {$gte: priceGreaterThan, $lte: priceLessThan}
         }
 
-        const foundProducts = await productModel.find(filter).select({_id:0,__v:0 })
+        const foundProducts = await productModel.find(filter).select({__v:0 })
 
-        console.log("foundProducts")
+        foundProducts.sort((a,b) => {
+            return a.price - b.price
+        })
         
         if(foundProducts.length == 0) return res.status(404).send({ status: true, message: "no product found for the given query"})
 
-  
-        
+        return res.status(200).send({ status: "true", data: foundProducts})
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -300,5 +295,5 @@ const updateProduct = async function(req, res) {
 }
 
 
-module.exports = { createProduct, getProductById, updateProduct }
+module.exports = { createProduct, getProductById, updateProduct, getProductByQuery }
 
