@@ -1,12 +1,7 @@
-const userModel = require("../models/userModel")
 const productModel = require("../models/productModel")
 const { uploadFile } = require("../utils/aws")
-const jwt = require("jsonwebtoken")
-const bcrypt = require("bcrypt");
-const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex, alphaNumSpaceReg, priceReg, } = require("../validator/validator");
-const { set } = require("mongoose");
-const { json } = require("express");
-const { find } = require("../models/userModel");
+const { isValid, isValidbody, nameRegex, objectid,priceReg } = require("../validator/validator");
+
 
 //==============================================create api=============================================
 const createProduct = async function (req, res) {
@@ -112,7 +107,7 @@ const getProductByQuery = async function(req, res) {
     try {
         let query = req.query;  
 
-        let {size, name, priceGreaterThan ,priceLessThan} = query
+        let {size, name, priceGreaterThan ,priceLessThan, priceSort} = query
 
         let filter = {
             isDeleted: false
@@ -156,10 +151,20 @@ const getProductByQuery = async function(req, res) {
 
         const foundProducts = await productModel.find(filter).select({__v:0 })
 
-        // console.log(foundProducts)
-        foundProducts.sort((a,b) => {
-            return a.price - b.price
-        })
+        if(!priceSort)  priceSort = 1
+        if(priceSort == 1) {
+            foundProducts.sort((a,b) => {
+                return a.price - b.price
+            })
+        }
+        else if(priceSort == -1) {
+            foundProducts.sort((a,b) => {
+                return b.price - a.price
+            })
+        }
+        else    return res.status(400).send({ status: false, message: "priceSort should be 1 or -1" })
+        
+
         
         if(foundProducts.length == 0) return res.status(404).send({ status: true, message: "no product found for the given query"})
 
