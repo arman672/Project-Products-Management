@@ -35,7 +35,7 @@ const createProduct = async function (req, res) {
         } else return res.status(400).send({ status: false, message: "description must be present" })
 
         //price validation
-        console.log(price)
+        //console.log(price)
         if (!price) return res.status(400).send({ status: false, message: "price cannot be empty" })
         if (!price.toString().match(priceReg)) return res.status(400).send({ status: false, message: "price should be in valid number/decimal format" })
 
@@ -59,7 +59,7 @@ const createProduct = async function (req, res) {
         if (req.files) {
             let image = req.files[0]
             if (image) {
-                console.log(image)
+                //console.log(image)
                 if (!(image.mimetype.startsWith("image"))) return res.status(400).send({ status: false, message: "only image files are allowed" })
                 let url = await uploadFile(image)
                 data.productImage = url
@@ -287,6 +287,22 @@ const updateProduct = async function(req, res) {
     }
 }
 
+const deleteProductsById = async function(req, res) {
+    try {
+        let productId = req.params.productId
+        if(!productId)  return res.status(400).send({ status: false, msg: "ProductId is required" })
+        if (!isValid(productId)) return res.status(400).send({ status: false, message: "Incorrect productId" })
+        if (!productId.match(objectid)) return res.status(400).send({ status: false, message: "Incorrect productId" })
 
-module.exports = { createProduct, getProductById, updateProduct, getProductByQuery }
+        let product = await productModel.findOneAndUpdate({_id: productId, isDeleted: false}, {$set:{isDeleted: true, deletedAt: new Date}}, {new: true}).select({__v: 0})    
+
+        if(!product) return res.status(404).send({ status: false, msg: "Product not found" })
+
+        return res.status(200).send({ status: true, message:"Success", data: product })
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+module.exports = { createProduct, getProductById, updateProduct, getProductByQuery, deleteProductsById }
 

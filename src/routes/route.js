@@ -15,7 +15,7 @@ router.post("/products", productController.createProduct)
 router.get("/products/:productId", productController.getProductById)
 router.get("/products", productController.getProductByQuery)
 router.put("/products/:productId", productController.updateProduct)
-//router.delete("/products/:productId", productController.deleteProduct)
+router.delete("/products/:productId", productController.deleteProductsById)
 
 
 router.all("/*", function(req, res) {
