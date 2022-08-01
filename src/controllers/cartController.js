@@ -65,8 +65,6 @@ const updateCart = async function(req,res){
 
         //removeProduct and update
         let itemsArr = foundCart.items 
-        let updatedCartItems = []
-
         let initialItems = itemsArr.length
         let totalPrice = foundCart.totalPrice
         let totalItems = foundCart.totalItems
@@ -81,14 +79,7 @@ const updateCart = async function(req,res){
                     itemsArr.splice(i,1)
                 }
             }
-            console.log(itemsArr)
-            if(initialItems ===  itemsArr.length){
-                return res.status(404).send({ status: false, msg: "product does not exist in the cart"})
-            }
-
-            const updatedCart = await cartModel.findOneAndUpdate({_id: cartId}, ({items : itemsArr, totalPrice: totalPrice, totalItems: totalItems}), {new: true}).select({__v: 0})   
-            if(!updatedCart) return res.status(404).send({ status: false, msg: "cart not found" })
-            return res.status(200).send({ status: true, message:"Success", data: updatedCart})
+            if(initialItems === itemsArr.length) return res.status(404).send({ status: false, msg: "product does not exist in the cart"})
         }
    
         if(removeProduct === 1){
@@ -103,14 +94,14 @@ const updateCart = async function(req,res){
                     }
                 }
             }
-
-            if(totalItems === initialItems) return res.status(404).send({ status: false, msg: "product does not exist in the cart"})
-            const updatedCart = await cartModel.findOneAndUpdate({_id: cartId}, ({items : itemsArr, totalPrice: totalPrice, totalItems: totalItems}), {new: true}).select({__v: 0})   
-
-            if(!updatedCart) return res.status(404).send({ status: false, msg: "cart not found" })
-            return res.status(200).send({ status: true, message:"Success", data: updatedCart})
+            if(initialItems === totalItems) return res.status(404).send({ status: false, msg: "product does not exist in the cart"})
         }
 
+        const updatedCart = await cartModel.findOneAndUpdate({_id: cartId}, ({items : itemsArr, totalPrice: totalPrice, totalItems: totalItems}), {new: true}).select({__v: 0})   
+
+        if(!updatedCart) return res.status(404).send({ status: false, msg: "cart not found" })
+
+        return res.status(200).send({ status: true, message:"Success", data: updatedCart})
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
