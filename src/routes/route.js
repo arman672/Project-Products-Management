@@ -1,7 +1,9 @@
 const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/userController")
+
 const productController = require("../controllers/productController")
+const cartController = require("../controllers/cartController")
 const mw = require("../middlewares/auth")
 
 //============================User Apis=============================================
@@ -15,7 +17,12 @@ router.post("/products", productController.createProduct)
 router.get("/products/:productId", productController.getProductById)
 router.get("/products", productController.getProductByQuery)
 router.put("/products/:productId", productController.updateProduct)
-//router.delete("/products/:productId", productController.deleteProduct)
+router.delete("/products/:productId", productController.deleteProductsById)
+
+//**********************************CARTAPI****************************************** */
+router.post("/users/:userId/cart",cartController.createCart)
+router.get("/users/:userId/cart",cartController.getCart)
+
 
 
 router.all("/*", function(req, res) {
