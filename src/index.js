@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const route = require("../src/routes/route");
+const route = require("./routes/route")
 const mongoose = require("mongoose");
 const app = express();
 const multer = require('multer')
@@ -8,9 +8,7 @@ const multer = require('multer')
 app.use(bodyParser.json());
 app.use(multer().any());
 
-mongoose
-  .connect(
-    "mongodb+srv://atifpervez:34BmDa5XVvtznQvO@code.8mvlc.mongodb.net/group33Database"
+mongoose.connect("mongodb+srv://atifpervez:34BmDa5XVvtznQvO@code.8mvlc.mongodb.net/group33Database"
   )
   .then(() => console.log("MongoDb is connected"))
   .catch((err) => console.log(err));
