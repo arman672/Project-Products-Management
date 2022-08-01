@@ -8,7 +8,7 @@ const mw = require("../middlewares/auth")
 
 //============================User Apis=============================================
 router.post("/register", userController.register)
-router.post("/login", userController.loginUser)
+router.post("/login", userController.loginUser)    
 router.get("/user/:userId/profile",mw.authentication, userController.getUser)
 router.put("/user/:userId/profile",mw.authentication, userController.updateUser)
 
@@ -23,6 +23,9 @@ router.delete("/products/:productId", productController.deleteProductsById)
 router.post("/users/:userId/cart",cartController.createCart)
 router.get("/users/:userId/cart",cartController.getCart)
 
+//=============================Cart APIs============================================= 
+// router.post("/users/:userId/cart", cartController.createCart)
+router.put("/users/:userId/cart", mw.authentication, cartController.updateCart)
 
 
 router.all("/*", function(req, res) {
