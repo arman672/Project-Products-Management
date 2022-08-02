@@ -23,6 +23,7 @@ router.delete("/products/:productId", productController.deleteProductsById)
 router.post("/users/:userId/cart",mw.authentication, cartController.createCart)
 router.get("/users/:userId/cart",mw.authentication, cartController.getCart)
 router.put("/users/:userId/cart", mw.authentication, cartController.updateCart)
+router.delete("/users/:userId/cart", mw.authentication, cartController.deleteCart)
 
 
 router.all("/*", function(req, res) {
