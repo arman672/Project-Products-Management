@@ -24,7 +24,7 @@ const createCart = async function (req, res) {
 
         }
         let product = await productModel.findById({ _id:productId })
-        console.log(product);
+        
         if (!product || product.isDeleted == true) {
             return res.status(400).send({ status: false, msg: "product not found" })
         }
