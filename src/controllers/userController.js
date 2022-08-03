@@ -3,7 +3,7 @@ const moongoose=require("mongoose")
 const { uploadFile } = require("../utils/aws")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
-const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex} = require("../validator/validator");
+const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex, isValidPincode} = require("../validator/validator");
 const AWS = require("aws-sdk");
 
 
@@ -14,7 +14,7 @@ const register = async function (req, res) {
     try {
         let data = req.body
         if (!isValidbody(data)) {
-            return res.status(400).send({ status: false, msg: "plz enter some keys and values in the data" })
+            return res.status(400).send({ status: false, message: "plz enter some keys and values in the data" })
         }
         let { fname, lname, email, phone, password, address } = data
 
@@ -25,36 +25,34 @@ const register = async function (req, res) {
 
 
         if (!isValid(fname)) {
-            return res.status(400).send({ status: false, msg: "plz enter your firstName" })
+            return res.status(400).send({ status: false, message: "plz enter your firstName" })
 
         }
         if (!nameRegex.test(fname)) {
-            return res.status(400)
-                .send({ status: false, msg: "plz do not use number in naming credential,only alphabets is required in naming credential" })
+            return res.status(400).send({ status: false, message: "plz do not use number in naming credential,only alphabets is required in naming credential" })
         }
 
         if (!isValid(lname)) {
-            res.status(400).send({ status: "false", msg: "plz enter your lastName" })
+            return res.status(400).send({ status: "false", message: "plz enter your lastName" })
 
         }
         if (!nameRegex.test(lname)) {
-            return res.status(400)
-                .send({ status: false, msg: "plz do not use number in naming credential,only alphabets is required in naming credential" })
+            return res.status(400).send({ status: false, message: "plz do not use number in naming credential,only alphabets is required in naming credential" })
         }
 
 
         //******************************************************EMAIL VALIDATION************************************************************ */        
         if (!isValid(email)) {
-            return res.status(400).send({ status: false, msg: "plz enter the emailId" })
+            return res.status(400).send({ status: false, message: "plz enter the emailId" })
 
         }
         if (!emailRegex.test(email)) {
-            return res.status(400).send({ status: false, msg: "enter the valid emailId" })
+            return res.status(400).send({ status: false, message: "enter the valid emailId" })
         }
 
         let emailCheck = await userModel.findOne({ email: email })
         if (emailCheck) {
-            return res.status(400).send({ status: false, msg: "emailId is already in use" })
+            return res.status(400).send({ status: false, message: "emailId is already in use" })
 
         }
 
@@ -63,19 +61,19 @@ const register = async function (req, res) {
 
 
         if (!isValid(phone)) {
-            return res.status(400).send({ status: false, msg: "plz enter phone number" })
+            return res.status(400).send({ status: false, message: "plz enter phone number" })
         }
 
         if (!phoneRegex.test(phone)) {
-            return res.status(400).send({ status: false, msg: "plz enter valid phoneNumber" })
+            return res.status(400).send({ status: false, message: "plz enter valid phoneNumber" })
         }
 
         if (!isValidPassword(password)) {
-            return res.status(400).send({ status: false, msg: "password should be more than 8 characters or less than 15 characters" })
+            return res.status(400).send({ status: false, message: "password should be more than 8 characters or less than 15 characters" })
         }
         let phoneCheck = await userModel.findOne({ phone: phone })
         if (phoneCheck) {
-            return res.status(400).send({ status: false, msg: "phone number is already in use" })
+            return res.status(400).send({ status: false, message: "phone number is already in use" })
 
         }
 
@@ -100,19 +98,18 @@ const register = async function (req, res) {
             if (address.shipping) {
                 if (address.shipping.street) {
                     if (!isValid(address.shipping.street)) return res.status(400).send({ status: false, message: "shipping street is in incorrect format" })
-
-                } else return res.status(400).send({ status: false, msg: "address.shipping.street is required" })
+                } else return res.status(400).send({ status: false, message: "address.shipping.street is required" })
 
                 if (address.shipping.city) {
                     if (!isValid(address.shipping.city)) return res.status(400).send({ status: false, message: "shipping city is in incorrect format" })
-                } else return res.status(400).send({ status: false, msg: "address.shipping.city is required" })
+                } else return res.status(400).send({ status: false, message: "address.shipping.city is required" })
 
                 if (address.shipping.pincode) {
                     if (typeof address.shipping.pincode != "number") return res.status(400).send({ status: false, message: "shipping pincode is in incorrect format" })
+                    if (!isValidPincode(address.shipping.pincode)) return res.status(400).send({ status: false, message: "Pincode should be 6 characters long" })
+                } else return res.status(400).send({ status: false, message: "address.shipping.pincode is required" })
 
-                } else return res.status(400).send({ status: false, msg: "address.shipping.pincode is required" })
-
-            } else return res.status(400).send({ status: false, msg: "address.shipping is required" })
+            } else return res.status(400).send({ status: false, message: "address.shipping is required" })
 
 
 //**BILLING*
@@ -120,22 +117,23 @@ const register = async function (req, res) {
             if (address.billing) {
                 if (address.billing.street) {
                     if (!isValid(address.billing.street)) return res.status(400).send({ status: false, message: "billing street is in incorrect format" })
-                } else return res.status(400).send({ status: false, msg: "address.billing.street is required" })
+                } else return res.status(400).send({ status: false, message: "address.billing.street is required" })
 
                 if (address.billing.city) {
                     if (!isValid(address.billing.city)) return res.status(400).send({ status: false, message: "billing city is in incorrect format" })
-                } else return res.status(400).send({ status: false, msg: "address.billing.city is required" })
+                } else return res.status(400).send({ status: false, message: "address.billing.city is required" })
 
 
                 if (address.billing.pincode) {
                     if (typeof address.billing.pincode != "number") return res.status(400).send({ status: false, message: "billing pincode is in incorrect format" })
+                    if (!isValidPincode(address.billing.pincode)) return res.status(400).send({ status: false, message: "Pincode should be 6 characters long" })
                 }
 
-                else return res.status(400).send({ status: false, msg: "address.billing.pincode is required" })
+                else return res.status(400).send({ status: false, message: "address.billing.pincode is required" })
 
-            } else return res.status(400).send({ status: false, msg: "address.billing is required" })
+            } else return res.status(400).send({ status: false, message: "address.billing is required" })
 
-        } else return res.status(400).send({ status: false, msg: "address is " })
+        } else return res.status(400).send({ status: false, message: "address is required" })
 
 
             //***********************************************************AWS*********************************************************************** */
@@ -175,7 +173,7 @@ const loginUser = async function (req, res) {
         
 
         if (!isValid(password)) return res.status(400).send({ status: false, message: "password should be in string format and it cannot be empty" })
-        //if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "password should be 8-15 characters in length." })
+        if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "password should be 8-15 characters in length." })
 
         const foundUser = await userModel.findOne({ email: email })
         if (!foundUser) return res.status(401).send({ status: false, message: "invalid credentials" })
@@ -266,6 +264,7 @@ const updateUser = async function (req, res) {
                 }
                 if (address.shipping.pincode) {
                     if (typeof address.shipping.pincode != "number") return res.status(400).send({ status: false, message: "shipping pincode is in incorrect format" })
+                    if (!isValidPincode(address.shipping.pincode)) return res.status(400).send({ status: false, message: "Pincode should be 6 characters long" })
                     query["address.shipping.pincode"] = address.shipping.pincode
                 }
             }
@@ -280,6 +279,7 @@ const updateUser = async function (req, res) {
                 }
                 if (address.billing.pincode) {
                     if (typeof address.billing.pincode != "number") return res.status(400).send({ status: false, message: "billing pincode is in incorrect format" })
+                    if (!isValidPincode(address.billing.pincode)) return res.status(400).send({ status: false, message: "Pincode should be 6 characters long" })
                     query["address.billing.pincode"] = address.billing.pincode
                 }
             }

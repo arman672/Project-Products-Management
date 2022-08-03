@@ -9,6 +9,7 @@ const cartSchema = new mongoose.Schema({
         unique: true
     },
     items: [{
+        _id: false,
         productId: {
             type: objectId,
             required: true,
@@ -16,7 +17,7 @@ const cartSchema = new mongoose.Schema({
         },
         quantity: {
             type: Number,
-            required: true,
+            required: true
             //min 1 
         }
     }],
