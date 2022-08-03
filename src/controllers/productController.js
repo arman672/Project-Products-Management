@@ -30,8 +30,7 @@ const createProduct = async function (req, res) {
         } else return res.status(400).send({ status: false, message: "description must be present" })
 
         //price validation
-        //console.log(price)
-        if (!price) return res.status(400).send({ status: false, message: "price cannot be empty" })
+        if (!price || price == 0 ) return res.status(400).send({ status: false, message: "price cannot be empty" })
         if (!price.toString().match(priceReg)) return res.status(400).send({ status: false, message: "price should be in valid number/decimal format" })
 
         //currencyID validation

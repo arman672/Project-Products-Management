@@ -20,12 +20,10 @@ router.put("/products/:productId", productController.updateProduct)
 router.delete("/products/:productId", productController.deleteProductsById)
 
 //**********************************CARTAPI****************************************** */
-router.post("/users/:userId/cart",cartController.createCart)
-router.get("/users/:userId/cart",cartController.getCart)
-
-//=============================Cart APIs============================================= 
-// router.post("/users/:userId/cart", cartController.createCart)
+router.post("/users/:userId/cart",mw.authentication, cartController.createCart)
+router.get("/users/:userId/cart",mw.authentication, cartController.getCart)
 router.put("/users/:userId/cart", mw.authentication, cartController.updateCart)
+router.delete("/users/:userId/cart", mw.authentication, cartController.deleteCart)
 
 
 router.all("/*", function(req, res) {

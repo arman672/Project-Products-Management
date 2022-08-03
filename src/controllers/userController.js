@@ -183,8 +183,7 @@ const loginUser = async function (req, res) {
         const cmprPassword = await bcrypt.compare(password, foundUser.password)
         if (!foundUser || !cmprPassword) return res.status(401).send({ status: false, message: "invalid credentials" })
 
-        const token = await jwt.sign({ userId: foundUser._id }, "groot", { expiresIn: "1d" })
-        //res.setHeader({"Authorization": "Bearer "+token});  //setting token in header
+        const token = await jwt.sign({ userId: foundUser._id }, "groot", { expiresIn: "7d" })
 
         return res.status(200).send({ status: true, message: "User login successfull", data: { userId: foundUser._id, token: token } })
     } catch (err) {
