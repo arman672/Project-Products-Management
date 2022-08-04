@@ -4,6 +4,7 @@ const userController = require("../controllers/userController")
 
 const productController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
+const orderController=require("../controllers/orderController")
 const mw = require("../middlewares/auth")
 
 //============================User Apis=============================================
@@ -25,6 +26,8 @@ router.get("/users/:userId/cart",mw.authentication, cartController.getCart)
 router.put("/users/:userId/cart", mw.authentication, cartController.updateCart)
 router.delete("/users/:userId/cart", mw.authentication, cartController.deleteCart)
 
+//***********************************ORDERAPI**************************************** */
+router.post("/users/:userId/orders",mw.authentication,orderController.createOrder)
 
 router.all("/*", function(req, res) {
     res.status(404).send({ msg: "No such Api found" })

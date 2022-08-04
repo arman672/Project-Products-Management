@@ -258,7 +258,7 @@ Send [form-data](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
     productId: {ObjectId, refs to Product model, mandatory},
     quantity: {number, mandatory, min 1}
   }],
-  totalPrice: {number, mandatory, comment: "Holds total price of all the items in the cart"},
+  totalPrice: {number, mandatory, comment: "Holds total price of all the items in the cart"},//
   totalItems: {number, mandatory, comment: "Holds total number of items in the cart"},
   createdAt: {timestamp},
   updatedAt: {timestamp},
