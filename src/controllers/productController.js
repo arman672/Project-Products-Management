@@ -2,7 +2,6 @@ const productModel = require("../models/productModel")
 const { uploadFile } = require("../utils/aws")
 const { isValid, isValidbody, nameRegex, objectid} = require("../validator/validator");
 
-
 //==============================================create api=============================================
 const createProduct = async function (req, res) {
     try {
@@ -162,10 +161,8 @@ const getProductByQuery = async function(req, res) {
                 return b.price - a.price
             })
         }
-        else    return res.status(400).send({ status: false, message: "priceSort should be 1 or -1" })
-        
-
-        
+        else return res.status(400).send({ status: false, message: "priceSort should be 1 or -1" })
+             
         if(foundProducts.length == 0) return res.status(404).send({ status: false, message: "no product found for the given query"})
 
         return res.status(200).send({ status: "true",message: 'Success', data: foundProducts})
@@ -206,7 +203,6 @@ const updateProduct = async function(req, res) {
         if (!isValidbody(data) && !req.files) return res.status(400).send({ status: false, message: "Please provide data to update" })
         let {title, description, price, currencyId, currencyFormat, isFreeShipping,  style, availableSizes, installments, productImage, isDeleted} = data
 
-
         if (title) {
             if (!isValid(title)) return res.status(400).send({ status: false, message: "title is in incorrect format" })
             let isUniqueTitle = await productModel.findOne({ title: title });
@@ -214,7 +210,6 @@ const updateProduct = async function(req, res) {
                 return res.status(400).send({ status: false, message: "This title is being used already" })
             }
         }
-
 
         //description validation
         if (description) {

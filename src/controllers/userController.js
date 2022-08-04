@@ -1,14 +1,8 @@
 const userModel = require("../models/userModel")
-const moongoose=require("mongoose")
 const { uploadFile } = require("../utils/aws")
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
-const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex, isValidPincode} = require("../validator/validator");
-const AWS = require("aws-sdk");
-
-
-
-
+const { isValid, isValidbody, nameRegex, emailRegex, isValidPassword, objectid, phoneRegex, isValidPincode } = require("../validator/validator");
 
 const register = async function (req, res) {
     try {
@@ -18,15 +12,10 @@ const register = async function (req, res) {
         }
         let { fname, lname, email, phone, password, address } = data
 
-
-
         //****************************************************NAME VALIDATION*******************************************************************************/
-
-
 
         if (!isValid(fname)) {
             return res.status(400).send({ status: false, message: "plz enter your firstName" })
-
         }
         if (!nameRegex.test(fname)) {
             return res.status(400).send({ status: false, message: "plz do not use number in naming credential,only alphabets is required in naming credential" })
@@ -34,12 +23,10 @@ const register = async function (req, res) {
 
         if (!isValid(lname)) {
             return res.status(400).send({ status: "false", message: "plz enter your lastName" })
-
         }
         if (!nameRegex.test(lname)) {
             return res.status(400).send({ status: false, message: "plz do not use number in naming credential,only alphabets is required in naming credential" })
         }
-
 
         //******************************************************EMAIL VALIDATION************************************************************ */        
         if (!isValid(email)) {
@@ -56,9 +43,7 @@ const register = async function (req, res) {
 
         }
 
-
         //***************************************************************************PHONE VALIDATION********************************************************* */
-
 
         if (!isValid(phone)) {
             return res.status(400).send({ status: false, message: "plz enter phone number" })
@@ -74,27 +59,15 @@ const register = async function (req, res) {
         let phoneCheck = await userModel.findOne({ phone: phone })
         if (phoneCheck) {
             return res.status(400).send({ status: false, message: "phone number is already in use" })
-
         }
-
-
 
         //*********************************************************ADDRESS VALIDATION***************************************************************** */
 
-
         address = JSON.parse(address)
-
-
-
         if (address) {
             if (typeof address != "object") return res.status(400).send({ status: false, message: "address is in incorrect format" })
 
-
-
- //**SHIPPING**    
-   
-   
-
+            //**SHIPPING**    
             if (address.shipping) {
                 if (address.shipping.street) {
                     if (!isValid(address.shipping.street)) return res.status(400).send({ status: false, message: "shipping street is in incorrect format" })
@@ -111,9 +84,7 @@ const register = async function (req, res) {
 
             } else return res.status(400).send({ status: false, message: "address.shipping is required" })
 
-
-//**BILLING*
-
+            //**BILLING*
             if (address.billing) {
                 if (address.billing.street) {
                     if (!isValid(address.billing.street)) return res.status(400).send({ status: false, message: "billing street is in incorrect format" })
@@ -135,26 +106,23 @@ const register = async function (req, res) {
 
         } else return res.status(400).send({ status: false, message: "address is required" })
 
+        //***********************************************************AWS*********************************************************************** */
+        let files = req.files
 
-            //***********************************************************AWS*********************************************************************** */
-            let files = req.files
+        if (!(files && files.length)) {
+            return res.status(400).send({ status: false, message: "Please Provide The Profile Image" });
+        }
 
-            if (!(files && files.length)) {
-                return res.status(400).send({ status: false, message: "Please Provide The Profile Image" });
-            }
+        const uploadedProfileImage = await uploadFile(files[0])
+        password = await bcrypt.hash(password, 10)
+        data.password = password
+        data.profileImage = uploadedProfileImage
+        data.address = address
 
-            const uploadedProfileImage = await uploadFile(files[0])
-            password = await bcrypt.hash(password, 10)
-            data.password = password
-            data.profileImage = uploadedProfileImage
-            data.address = address
+        let createdUser = await userModel.create(data)
 
+        return res.status(201).send({ status: true, message: "User created successsfully", data: createdUser })
 
-
-            let createdUser = await userModel.create(data)
-
-            return res.status(201).send({ status: true, message: "User created successsfully", data: createdUser })
-        
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -168,10 +136,6 @@ const loginUser = async function (req, res) {
         if (!isValidbody(data)) return res.status(400).send({ status: false, message: "email and password cannot be empty" })
         if (!isValid(email)) return res.status(400).send({ status: false, message: "email should be in string format and it cannot be empty" })
         if (!email.match(emailRegex)) return res.status(400).send({ status: false, message: "email is in incorrect format" })
-        
-
-        
-
         if (!isValid(password)) return res.status(400).send({ status: false, message: "password should be in string format and it cannot be empty" })
         if (!isValidPassword(password)) return res.status(400).send({ status: false, message: "password should be 8-15 characters in length." })
 
@@ -188,7 +152,6 @@ const loginUser = async function (req, res) {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
-
 
 
 const getUser = async function (req, res) {
