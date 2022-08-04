@@ -89,7 +89,7 @@ const createCart = async function (req, res) {
                 return res.status(400).send({ status: false, message: `cart is already exist: cartId : ${checkCart._id}` })
             }
             const cart = await cartModel.create(cartData)
-            return res.status(200).send({ status: true, message: "Success", data: cart })
+            return res.status(201).send({ status: true, message: "Success", data: cart })
         }
     }
     catch (err) {
@@ -101,7 +101,7 @@ const createCart = async function (req, res) {
 const getCart = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!userId) return res.status(400).send({ status: false, msg: "plz enter the userId" })
+
         if (!isValid(userId)) return res.status(400).send({ status: false, msg: "incorrect userId userId" })
         if (!userId.match(objectid))  return res.status(400).send({ status: false, msg: "incorrect userId" })
         
@@ -235,7 +235,7 @@ const updateCart = async function (req, res) {
 const deleteCart = async function (req, res) {
     try {
         let userId = req.params.userId
-        if (!isValid(userId)) return res.status(400).send({ status: false, msg: "incorrect userId userId" })
+        if (!isValid(userId)) return res.status(400).send({ status: false, msg: "incorrect userId" })
         if (!userId.match(objectid))  return res.status(400).send({ status: false, msg: "incorrect userId" })
         
         let user = await userModel.findById(userId)
