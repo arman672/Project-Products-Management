@@ -119,7 +119,7 @@ const updateOrder = async function (req, res) {
         let cart = await cartModel.findOne({ userId })
         if (!cart) return res.status(404).send({ status: false, message: "Cart not found for this user" })
 
-        if (cart.items.length === 0) return res.status(400).send({ status: false, message: "Order cannot be placed because cart is empty" })
+        if (cart.items.length === 0) return res.status(400).send({ status: false, message: "Order cannot be updated because cart is empty" })
 
         cart.items = []
         cart.totalPrice = 0
