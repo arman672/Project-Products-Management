@@ -28,6 +28,7 @@ router.delete("/users/:userId/cart", mw.authentication, cartController.deleteCar
 
 //***********************************ORDERAPI**************************************** */
 router.post("/users/:userId/orders",mw.authentication,orderController.createOrder)
+router.put("/users/:userId/orders",mw.authentication,orderController.updateOrder)
 
 router.all("/*", function(req, res) {
     res.status(404).send({ msg: "No such Api found" })

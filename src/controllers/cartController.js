@@ -56,17 +56,18 @@ const createCart = async function (req, res) {
             for (i = 0; i < itemsArr.length; i++) {
                 if (itemsArr[i].productId._id == productId) { //if the product already exist in our cart
                     itemsArr[i].quantity += quantity
-                    totalPrice += itemsArr[i].productId.price * quantity
-                    totalItems += quantity
+                    totalPrice += itemsArr[i].productId.price * quantity     
                     flag = false
                 }
             }
+
             if (flag == true) { //if product does not already exist in our cart then add it in the cart
                 itemsArr.push({ productId: productId, quantity: quantity })
                 totalPrice += product.price * quantity
-                totalItems += quantity
             }
 
+            totalPrice = totalPrice.toFixed(2)
+            totalItems = itemsArr.length
             const updatedCart = await cartModel.findOneAndUpdate({ _id: cartId }, ({ items: itemsArr, totalPrice: totalPrice, totalItems: totalItems }), { new: true }).select({ __v: 0 })
 
             if (!updatedCart) return res.status(404).send({ status: false, message: "cart not found" })
@@ -81,7 +82,7 @@ const createCart = async function (req, res) {
                     productId: productId,
                     quantity: quantity
                 }],
-                totalPrice: product.price * quantity,
+                totalPrice: (product.price * quantity).toFixed(2),
                 totalItems: quantity
             }
             const checkCart = await cartModel.findOne({ userId })
@@ -199,7 +200,7 @@ const updateCart = async function (req, res) {
             for (let i = 0; i < itemsArr.length; i++) {
                 if (productId == itemsArr[i].productId._id) {
                     totalPrice -= itemsArr[i].productId.price * itemsArr[i].quantity
-                    totalItems -= itemsArr[i].quantity
+                    totalItems--
                     itemsArr.splice(i, 1)
                 }
             }
@@ -208,19 +209,22 @@ const updateCart = async function (req, res) {
 
         if (removeProduct === 1) {
             initialItems = totalItems
+            let flag = false
             for (let i = 0; i < itemsArr.length; i++) {
                 if (productId == itemsArr[i].productId._id) {
+                    flag = true
                     totalPrice -= itemsArr[i].productId.price
-                    totalItems--
                     itemsArr[i].quantity--
                     if (itemsArr[i].quantity == 0) {
+                        totalItems--
                         itemsArr.splice(i, 1)
                     }
                 }
             }
-            if (initialItems === totalItems) return res.status(404).send({ status: false, message: "product does not exist in the cart" })
+            if (!flag) return res.status(404).send({ status: false, message: "product does not exist in the cart"})
         }
 
+        totalPrice = totalPrice.toFixed(2)
         const updatedCart = await cartModel.findOneAndUpdate({ _id: cartId }, ({ items: itemsArr, totalPrice: totalPrice, totalItems: totalItems }), { new: true }).select({ __v: 0 })
 
         if (!updatedCart) return res.status(404).send({ status: false, message: "cart not found" })

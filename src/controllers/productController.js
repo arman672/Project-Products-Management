@@ -32,6 +32,7 @@ const createProduct = async function (req, res) {
         //price validation
         if (!price || price == 0 ) return res.status(400).send({ status: false, message: "price cannot be empty" })
         if (!Number(price))  return res.status(400).send({ status: false, message: "price should be in valid number/decimal format" })
+        data.price = Number(price).toFixed(2)
 
         //currencyID validation
         if (currencyId && currencyId.trim().length !== 0) {
@@ -222,6 +223,7 @@ const updateProduct = async function(req, res) {
 
         //price validation
         if (price && !Number(price)) return res.status(400).send({ status: false, message: "price should be in valid number/decimal format" })
+        data.price = Number(price).toFixed(2)
 
         //currencyID validation
         if (currencyId && currencyId.trim().length !== 0) {
