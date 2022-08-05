@@ -11,6 +11,7 @@ const createOrder = async function (req, res) {
         if (!userId) return res.status(400).send({ status: false, message: "userId is required" })
         if (!isValid(userId)) return res.status(400).send({ status: false, message: "Incorrect userId" })
         if (!userId.match(objectid)) return res.status(400).send({ status: false, message: "Incorrect userId" })
+        
         let user = await userModel.findById(userId)
         if (!user) return res.status(404).send({ status: false, message: "user not found" })
         if (req.token.userId != userId) return res.status(403).send({ status: false, message: "Not Authorised" })
@@ -35,10 +36,10 @@ const createOrder = async function (req, res) {
 
         if (checkCart.items.length === 0) return res.status(400).send({ status: false, message: "Cart is empty cannot place an order!" })
 
-        const checkorder = await orderModel.findOne({ userId: userId, isDeleted: false, status: "pending" })
-        if (checkorder) {
-            return res.status(400).send({ status: false, message: `order(${checkorder._id}) is pending for the given cart` })
-        }
+        // const checkorder = await orderModel.findOne({ userId: userId, isDeleted: false, status: "pending" })
+        // if (checkorder) {
+        //     return res.status(400).send({ status: false, message: `order(${checkorder._id}) is pending for the given cart` })
+        // }
 
         let orderData = checkCart.toObject()
         delete orderData["_id"]
@@ -54,17 +55,20 @@ const createOrder = async function (req, res) {
             if (!(cancellable == "true" || cancellable == "false" || typeof cancellable === "boolean"))
                 return res.status(400).send({ status: false, message: "cancellable should be Boolean or true/false" })
             orderData["cancellable"] = cancellable
-
         }
 
+        checkCart.items = []
+        checkCart.totalPrice = 0
+        checkCart.totalItems = 0
+        checkCart.save()
+
         const order = await orderModel.create(orderData)
-        return res.status(200).send({ status: true, message: "Success", data: order })
+        return res.status(201).send({ status: true, message: "Success", data: order })
 
     }
     catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
-
 }
 
 const updateOrder = async function (req, res) {
@@ -114,17 +118,6 @@ const updateOrder = async function (req, res) {
         } else {
             return res.status(400).send({ status: false, message: "the status could either be cancelled or completed!" })
         }
-
-        //cart validations
-        let cart = await cartModel.findOne({ userId })
-        if (!cart) return res.status(404).send({ status: false, message: "Cart not found for this user" })
-
-        if (cart.items.length === 0) return res.status(400).send({ status: false, message: "Order cannot be updated because cart is empty" })
-
-        cart.items = []
-        cart.totalPrice = 0
-        cart.totalItems = 0
-        cart.save()
 
         foundOrder.save()
         return res.status(200).send({ status: true, message: "Success", data: foundOrder })
