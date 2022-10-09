@@ -63,8 +63,8 @@ const register = async function (req, res) {
 
         //*********************************************************ADDRESS VALIDATION***************************************************************** */
 
-        address = JSON.parse(address)
         if (address) {
+            address = JSON.parse(address)
             if (typeof address != "object") return res.status(400).send({ status: false, message: "address is in incorrect format" })
 
             //**SHIPPING**    
